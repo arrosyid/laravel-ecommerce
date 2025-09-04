@@ -1,0 +1,63 @@
+@startuml
+!theme plain
+
+entity user {
+  * id : int <<PK>>
+  --
+  nama : varchar
+  email : varchar
+  password : varchar
+  telepon : varchar
+  alamat : text
+  role : int
+  status : int
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity kategori {
+  * id : int <<PK>>
+  --
+  nama_kategori : varchar
+  deskripsi : text
+  parent_id : int <<FK>>
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity produk {
+  * id : int <<PK>>
+  --
+  id_kategori : int <<FK>>
+  kode_produk : varchar
+  nama_produk : varchar
+  deskripsi : text
+  harga : decimal
+  stok : int
+  satuan : varchar
+  gambar : text
+  status : int
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity history_stok_opname {
+  * id : int <<PK>>
+  --
+  id_produk : int <<FK>>
+  stok_awal : int
+  stok_akhir : int
+  perubahan : int
+  keterangan : text
+  tanggal : datetime
+  id_user : int <<FK>>
+}
+
+'======================
+' RELATIONSHIPS
+'======================
+kategori ||--o{ produk : contains
+produk ||--o{ history_stok_opname : changed
+user ||--o{ history_stok_opname : records
+
+@enduml

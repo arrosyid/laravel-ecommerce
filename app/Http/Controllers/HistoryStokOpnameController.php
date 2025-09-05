@@ -12,15 +12,17 @@ class HistoryStokOpnameController extends Controller
      */
     public function index()
     {
-        //
+        $history = HistoryStokOpname::with(['produk', 'user'])->latest()->paginate(10);
+        return view('history.index', compact('history'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $produk = \App\Models\Produk::find($request->id_produk);
+        return view('history.create', compact('produk'));
     }
 
     /**
@@ -28,7 +30,42 @@ class HistoryStokOpnameController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'id_produk' => 'required|exists:produks,id',
+            'operasi' => 'required|in:tambah,kurang',
+            'jumlah' => 'required|integer|min:1',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $produk = \App\Models\Produk::findOrFail($request->id_produk);
+        $stok_awal = $produk->stok;
+        $jumlah = $request->jumlah;
+        $perubahan = 0;
+
+        if ($request->operasi == 'kurang') {
+            if ($stok_awal < $jumlah) {
+                return redirect()->back()->withErrors(['jumlah' => 'Stok tidak mencukupi untuk dikurangi.'])->withInput();
+            }
+            $stok_akhir = $stok_awal - $jumlah;
+            $perubahan = -$jumlah;
+        } else {
+            $stok_akhir = $stok_awal + $jumlah;
+            $perubahan = $jumlah;
+        }
+
+        HistoryStokOpname::create([
+            'id_produk' => $produk->id,
+            'stok_awal' => $stok_awal,
+            'stok_akhir' => $stok_akhir,
+            'perubahan' => $perubahan,
+            'keterangan' => $request->keterangan,
+            'tanggal' => now(),
+            'id_user' => auth()->id(),
+        ]);
+
+        $produk->update(['stok' => $stok_akhir]);
+
+        return redirect()->route('produk.index')->with('success', 'Stok berhasil disesuaikan.');
     }
 
     /**

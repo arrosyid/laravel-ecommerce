@@ -40,7 +40,7 @@
                             <label class="label"><span class="label-text">Satuan</span></label>
                             <input type="text" name="satuan" placeholder="Contoh: Pcs, Unit, Set" class="input input-bordered w-full" required />
                         </div>
-                         <div class="form-control w-full">
+                        <div class="form-control w-full">
                             <label class="label"><span class="label-text">Status</span></label>
                             <select name="status" class="select select-bordered w-full" required>
                                 <option value="1">Aktif</option>

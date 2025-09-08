@@ -12,10 +12,22 @@ class ProdukController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $produks = Produk::with('kategori')->get();
-        return view('produk.index', compact('produks'));
+        $kategoris = Kategori::all();
+        $produks = Produk::with('kategori');
+
+        if ($request->has('search')) {
+            $produks->where('nama_produk', 'like', "%" . $request->search . "%");
+        }
+
+        if ($request->has('id_kategori') && $request->id_kategori != '') {
+            $produks->where('id_kategori', $request->id_kategori);
+        }
+
+        $produks = $produks->get();
+
+        return view('produk.index', compact('produks', 'kategoris'));
     }
 
     /**
